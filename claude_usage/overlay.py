@@ -39,6 +39,14 @@ MIN_WIDTH = 350
 MARK_RADIUS = 8
 MARK_SPOKES = 8
 
+# "Peek": how we surface an unlocked overlay that has been buried. Simply
+# raising it does not work -- Windows' foreground lock stops a non-foreground
+# window climbing above the active one unless it activates, and activating is
+# exactly what we must never do. So we pin it briefly instead and let go once
+# the user has moved on.
+PEEK_MIN_SECONDS = 1.5     # ignore foreground changes before this
+PEEK_MAX_SECONDS = 20.0    # release regardless after this
+
 
 class Overlay:
     def __init__(self, root, state, on_quit=None, on_refresh=None):
@@ -68,6 +76,8 @@ class Overlay:
         # Locked = always on top. Unlocked = normal z-order, so a fullscreen
         # video can cover it. Persisted, because it is a working preference.
         self.pinned = bool(cache.load_ui_state().get("pinned", True))
+        self._peek_started = 0.0        # temporary on-top while unlocked
+        self._peek_foreground = None
 
         self.win = tk.Toplevel(root)
         self.win.overrideredirect(True)          # frameless
@@ -218,17 +228,14 @@ class Overlay:
     def set_pinned(self, pinned):
         """Lock (always on top) or unlock (normal z-order)."""
         self.pinned = bool(pinned)
+        # An explicit choice supersedes any peek in progress.
+        self._peek_started = 0.0
+        self._peek_foreground = None
         ui = cache.load_ui_state()
         ui["pinned"] = self.pinned
         cache.save_ui_state(ui)
 
-        try:
-            self.win.attributes("-topmost", self.pinned)
-        except Exception:
-            pass
-        hwnd = self._resolve_hwnd()
-        if hwnd:
-            win32.set_topmost(hwnd, self.pinned)
+        self._set_topmost(self.pinned)
         self._paint()
 
     def bring_to_front(self):
@@ -245,8 +252,47 @@ class Overlay:
             return
         if self.pinned:
             win32.show_no_activate(hwnd)
-        else:
-            win32.raise_without_activating(hwnd)
+            return
+
+        # Unlocked: start a peek. Promote-then-demote does not survive the
+        # foreground lock, so hold it on top until the user moves on.
+        # Tk's own -topmost attribute has to move too: it re-asserts itself on
+        # the next geometry change and would quietly undo a bare SetWindowPos.
+        self._set_topmost(True)
+        self._peek_started = time.time()
+        self._peek_foreground = win32.foreground_hwnd()
+
+    def _set_topmost(self, on):
+        """Apply topmost through both Tk and Win32 so they cannot disagree."""
+        try:
+            self.win.attributes("-topmost", bool(on))
+        except Exception:
+            pass
+        hwnd = self._resolve_hwnd()
+        if hwnd:
+            win32.set_topmost(hwnd, bool(on))
+
+    def update_peek(self, foreground_hwnd):
+        """End a peek once the user switches windows, or after the cap.
+
+        Called from the visibility tick, which already reads the foreground
+        window, so this costs nothing extra.
+        """
+        if not self._peek_started or self.pinned:
+            return
+        elapsed = time.time() - self._peek_started
+        moved_on = (foreground_hwnd and self._peek_foreground
+                    and foreground_hwnd != self._peek_foreground)
+        if (moved_on and elapsed >= PEEK_MIN_SECONDS) or elapsed >= PEEK_MAX_SECONDS:
+            self._end_peek()
+
+    def _end_peek(self):
+        """Drop back to the normal z-order, leaving the lock setting alone."""
+        was_peeking = bool(self._peek_started)
+        self._peek_started = 0.0
+        self._peek_foreground = None
+        if was_peeking and not self.pinned:
+            self._set_topmost(False)
 
     # --- visibility ------------------------------------------------------
 

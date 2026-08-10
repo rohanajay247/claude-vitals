@@ -106,6 +106,8 @@ class App:
         """500ms: reconcile visibility and repaint if the data changed."""
         try:
             snapshot = self.state.snapshot
+            # Release a temporary on-top once the user has switched windows.
+            self.overlay.update_peek(win32.foreground_hwnd())
             if self._should_show():
                 self.overlay.render(snapshot)
                 self.overlay.show()

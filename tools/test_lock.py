@@ -123,7 +123,15 @@ try:
     without_changing_focus("focus unchanged", ov.bring_to_front)
     check("visible again", bool(win32.user32.IsWindowVisible(hwnd)))
     check("overlay re-enabled", ov.state.overlay_enabled is True)
-    check("did NOT silently re-pin", not topmost(), "unlocked must stay unlocked")
+    # An unlocked overlay is held on top *temporarily* so it can actually
+    # surface (Windows' foreground lock defeats a plain raise). What must not
+    # change is the user's saved preference. The temporary hold, and its
+    # release, are covered by tools/test_peek.py.
+    check("lock SETTING unchanged", ov.pinned is False,
+          "a peek must not turn into a permanent lock")
+    check("peek is active (that is how it surfaces)", topmost())
+    ov._end_peek()
+    check("releases back off top", not topmost())
 
     print("\n=== other header buttons still work ===")
     rb = ov.canvas.bbox("btn_refresh")

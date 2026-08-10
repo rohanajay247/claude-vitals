@@ -142,8 +142,16 @@ in the tray menu instead.
 ### Lost it?
 
 If it's unlocked, something may be covering it. **Left-click the tray icon** to
-bring it straight back — that's the tray's default action. It won't re-lock it
-and won't steal your focus.
+bring it straight back — that's the tray's default action. Clicking the Desktop
+or taskbar shortcut again does the same thing.
+
+While unlocked it's held on top just long enough for you to read it, then slips
+back into the normal order once you switch to another window. Your lock setting
+isn't changed, and your focus is never taken.
+
+> Why it works that way: Windows won't let a background window climb above the
+> active one unless it activates — and activating would steal your cursor
+> mid-sentence. Holding it on top briefly is the way to surface it without that.
 
 ### Tray menu
 
@@ -352,6 +360,7 @@ docs/                   screenshots, diagrams, and the full documentation
 .venv\Scripts\python.exe tools\test_settings.py       # settings, dialogs, credit totals
 .venv\Scripts\python.exe tools\test_lock.py           # lock, bring-to-front, buttons
 .venv\Scripts\python.exe tools\test_single_instance.py # only one copy can run
+.venv\Scripts\python.exe tools\test_peek.py           # surfacing a buried overlay
 .venv\Scripts\python.exe tools\test_visibility.py     # follow-Claude visibility
 .venv\Scripts\python.exe tools\verify_overlay.py      # window flags and focus safety
 .venv\Scripts\python.exe tools\smoke_test.py          # icons, one live poll, backoff

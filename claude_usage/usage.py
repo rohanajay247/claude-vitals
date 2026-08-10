@@ -51,6 +51,19 @@ class AuthError(UsageError):
     """401/403 -- caller should re-read credentials and try refreshing."""
 
 
+class RateLimited(UsageError):
+    """429 -- the endpoint is fine, it just wants us to wait.
+
+    Deliberately distinct from a real failure: the numbers we already hold are
+    still valid, so the caller should keep showing them rather than falling
+    back and flagging everything stale.
+    """
+
+    def __init__(self, message, retry_after=None):
+        super().__init__(message)
+        self.retry_after = retry_after
+
+
 @dataclass
 class Limit:
     key: str
@@ -359,6 +372,15 @@ def fetch(session=None, allow_refresh=True):
 
         if response.status_code in (401, 403):
             raise AuthError(f"HTTP {response.status_code} after refresh")
+        if response.status_code == 429:
+            retry_after = None
+            try:
+                # Servers sometimes send 0 here; treat that as "no guidance".
+                value = float(response.headers.get("retry-after", ""))
+                retry_after = value if value > 0 else None
+            except (TypeError, ValueError):
+                pass
+            raise RateLimited("rate limited by the server", retry_after)
         if response.status_code != 200:
             raise UsageError(
                 f"HTTP {response.status_code}: {credentials.redact(response.text)[:200]}"

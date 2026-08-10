@@ -20,6 +20,18 @@ USAGE_URL = "https://api.anthropic.com/api/oauth/usage"
 
 # --- polling -------------------------------------------------------------
 POLL_INTERVAL = 180          # 3 minutes between successful polls
+
+# The endpoint rate-limits hard: a second request a couple of seconds after the
+# first comes back 429. So a manual refresh is only worth making when the data
+# we already hold is older than this -- otherwise we would spend a 429 to
+# re-fetch numbers that are seconds old.
+MIN_REFRESH_INTERVAL = 30
+RATE_LIMIT_BACKOFF = 60      # wait at least this long after a 429
+
+# Only call the figures "stale" once they are genuinely out of date. A single
+# failed refresh does not make three-minute-old numbers wrong, and labelling
+# them "stale - just now" is worse than saying nothing.
+STALE_AFTER = 420            # 7 minutes: more than two missed polls
 FOREGROUND_INTERVAL = 0.5    # how often we check which window is in front
 REQUEST_TIMEOUT = 20
 

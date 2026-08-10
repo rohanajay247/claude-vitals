@@ -79,8 +79,15 @@ Hover for both allowances with countdowns to reset.
 - **It's not in Alt-Tab or the taskbar.** It's a tray app, not a window.
 - **Drag it anywhere.** It remembers where you put it.
 
-**It's honest when it doesn't know.** If a check fails you get the last known
-numbers clearly marked `stale`, never a stale number pretending to be live.
+**It's honest when it doesn't know.** If checks keep failing you get the last
+known numbers clearly marked `stale`, never a stale number pretending to be live.
+
+**It respects the server.** The usage endpoint rate-limits hard — a second
+request a couple of seconds after the first comes back `429`. So Claude Vitals
+polls once every 3 minutes, ignores a manual refresh when the figures are
+already under 30 seconds old, and waits at least a minute after being rate
+limited. A `429` never discards good numbers: your usage hasn't changed just
+because one refresh was refused.
 
 **Costs almost nothing:** about 0.3% of one CPU core and ~55 MB of memory.
 
@@ -136,7 +143,7 @@ in the tray menu instead.
 | Button | What it does |
 |---|---|
 | 🔒 **Lock** | Orange padlock: always on top. Grey open padlock: other windows can cover it. |
-| ⟳ **Refresh** | Check now instead of waiting for the next automatic check. |
+| ⟳ **Refresh** | Check now instead of waiting for the next automatic check. Ignored if the figures are already less than 30s old — see below. |
 | ✕ **Close** | Stop everything. |
 
 ### Lost it?
@@ -361,6 +368,7 @@ docs/                   screenshots, diagrams, and the full documentation
 .venv\Scripts\python.exe tools\test_lock.py           # lock, bring-to-front, buttons
 .venv\Scripts\python.exe tools\test_single_instance.py # only one copy can run
 .venv\Scripts\python.exe tools\test_peek.py           # surfacing a buried overlay
+.venv\Scripts\python.exe tools\test_rate_limit.py     # 429 handling, stale threshold
 .venv\Scripts\python.exe tools\test_visibility.py     # follow-Claude visibility
 .venv\Scripts\python.exe tools\verify_overlay.py      # window flags and focus safety
 .venv\Scripts\python.exe tools\smoke_test.py          # icons, one live poll, backoff

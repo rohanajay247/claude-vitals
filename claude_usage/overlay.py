@@ -379,7 +379,7 @@ class Overlay:
         return (
             tuple((r["key"], r["label"], r["value"], r["hint"])
                   for r in self._row_specs(snapshot)),
-            snapshot.stale,
+            snapshot.stale and self._is_old(snapshot.fetched_at),
             snapshot.error,
             self._hover,
             self.pinned,
@@ -490,7 +490,10 @@ class Overlay:
                 y += ROW_GAP
             y -= ROW_GAP
 
-        if snapshot and snapshot.stale:
+        # Only warn once the numbers are genuinely out of date. One missed
+        # refresh does not invalidate figures that are a couple of minutes old,
+        # and "stale · just now" reads as a bug rather than information.
+        if snapshot and snapshot.stale and self._is_old(snapshot.fetched_at):
             y += 7
             canvas.create_text(
                 PAD_X, y, anchor="nw",
@@ -620,6 +623,13 @@ class Overlay:
             self._bar_items[row["key"]] = (item, PAD_X, y, right, y + BAR_HEIGHT)
             y += BAR_HEIGHT
         return y
+
+    @staticmethod
+    def _is_old(fetched_at):
+        """True once the figures are older than a couple of missed polls."""
+        if not fetched_at:
+            return True
+        return (time.time() - fetched_at) > config.STALE_AFTER
 
     @staticmethod
     def _age(fetched_at):

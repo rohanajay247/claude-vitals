@@ -14,6 +14,7 @@ from a non-Tk thread.
 import ctypes
 import sys
 import threading
+import time
 
 import tkinter as tk
 
@@ -198,6 +199,17 @@ class App:
             self.refresh_now()
 
     def refresh_now(self):
+        """Ask the poller to fetch now -- unless what we have is already fresh.
+
+        The endpoint rate-limits hard, so spending a request to replace numbers
+        that are seconds old just earns a 429. The mark still spins either way,
+        so the click always feels like it did something.
+        """
+        snapshot = self.state.snapshot
+        if snapshot and snapshot.fetched_at:
+            age = time.time() - snapshot.fetched_at
+            if age < config.MIN_REFRESH_INTERVAL:
+                return
         self.state.refresh_now.set()
 
     def quit(self):

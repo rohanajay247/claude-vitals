@@ -70,6 +70,17 @@ class Poller(threading.Thread):
             self.backoff = None
             self.state.snapshot = snapshot
             self._check_thresholds(snapshot)
+        except usage.RateLimited as exc:
+            # Not a failure of the data -- keep showing what we have. Replacing
+            # it with a "stale" fallback would be wrong and alarming, since the
+            # figures we hold may be only seconds old.
+            self.backoff = max(config.RATE_LIMIT_BACKOFF,
+                               exc.retry_after or 0)
+            current = self.state.snapshot
+            if current is None:
+                fallback = usage.from_cache()
+                if fallback is not None:
+                    self.state.snapshot = fallback
         except usage.UsageError as exc:
             # Includes AuthError. usage.fetch() has already re-read the
             # credentials file and tried a refresh before giving up.

@@ -73,8 +73,12 @@ def arrow(d, start, end, colour=MUTED, width=2, head=7):
 def save(img, name):
     img = img.resize((img.width // SCALE, img.height // SCALE), Image.LANCZOS)
     out = DOCS / name
-    img.save(out)
-    print(f"  wrote {out.name}  ({img.width}x{img.height})")
+    # These are flat-colour diagrams -- a 64-colour palette is visually
+    # identical and about 70% smaller, which matters because images are the
+    # bulk of what anyone clones.
+    img.convert("RGB").quantize(colors=64, method=Image.MEDIANCUT).save(
+        out, optimize=True)
+    print(f"  wrote {out.name}  ({img.width}x{img.height}, {out.stat().st_size // 1024} KB)")
     return out
 
 

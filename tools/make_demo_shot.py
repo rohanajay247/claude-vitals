@@ -23,7 +23,7 @@ except Exception:
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from PIL import ImageGrab  # noqa: E402
+from PIL import Image, ImageGrab  # noqa: E402
 
 from claude_usage import overlay as overlay_mod, state as state_mod, usage  # noqa: E402
 
@@ -67,5 +67,6 @@ st.stop_event.set()
 root.destroy()
 
 OUT.parent.mkdir(parents=True, exist_ok=True)
-shot.save(OUT)
+# Palette-quantised: visually identical for a flat-colour UI, far smaller.
+shot.convert("RGB").quantize(colors=64, method=Image.MEDIANCUT).save(OUT, optimize=True)
 print(f"wrote {OUT}  ({shot.size[0]}x{shot.size[1]})  — invented numbers, safe to publish")

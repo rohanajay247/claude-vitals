@@ -40,6 +40,22 @@ def describe_shape(value, indent=0, key=""):
 print("=== 1. current credential status ===")
 print("  ", credentials.describe())
 
+# This is the only tool here that CHANGES anything of yours: it renews your
+# Claude login and rewrites ~/.claude/.credentials.json (after backing it up).
+# Everything else in tools/ is read-only, so make this one ask first -- running
+# every script in a folder to see what they do should not rotate your token.
+print("\nThis will renew your Claude login and rewrite:")
+print(f"   {config.CREDENTIALS_FILE}")
+print(f"   (a backup is written to {config.CREDENTIALS_FILE.name}.bak first)")
+if "--yes" not in sys.argv:
+    try:
+        if input("\nContinue? [y/N] ").strip().lower() not in ("y", "yes"):
+            print("Cancelled. Nothing was changed.")
+            sys.exit(0)
+    except (EOFError, KeyboardInterrupt):
+        print("\nCancelled. Nothing was changed.")
+        sys.exit(0)
+
 print("\n=== 2. refreshing access token ===")
 try:
     creds = credentials.refresh()

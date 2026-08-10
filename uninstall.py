@@ -27,7 +27,21 @@ removed, kept, failed = [], [], []
 
 
 def desktop_dir():
-    """Resolve the real Desktop, which OneDrive often redirects."""
+    """Resolve the real Desktop, which OneDrive often redirects.
+
+    Reads the shell folder from the registry with the standard library, so this
+    works under a plain system Python with no pywin32 -- which matters, because
+    uninstalling should not depend on the virtual environment it is deleting.
+    """
+    try:
+        import winreg
+        key = r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key) as k:
+            p = Path(winreg.QueryValueEx(k, "Desktop")[0])
+            if p.exists():
+                return p
+    except Exception:
+        pass
     try:
         from win32com.client import Dispatch
         p = Path(Dispatch("WScript.Shell").SpecialFolders("Desktop"))
@@ -137,7 +151,25 @@ def main():
 
     if args.all:
         rm("Saved state (settings, cache, position)", PROJECT / "state", dry)
-        rm("Virtual environment", PROJECT / ".venv", dry)
+
+        # Windows locks a running executable, so the interpreter cannot delete
+        # the virtual environment it is running from -- that fails with a bare
+        # "Access is denied" which looks like something is still open. Detect it
+        # and say what is actually going on.
+        venv = PROJECT / ".venv"
+        running_from_venv = False
+        try:
+            running_from_venv = venv.resolve() in Path(sys.executable).resolve().parents
+        except OSError:
+            pass
+        if running_from_venv and venv.exists():
+            kept.append(
+                "Virtual environment: skipped -- this uninstaller is running "
+                "from inside it.\n      It goes when you delete the project "
+                "folder, or re-run with system Python:\n      "
+                "python uninstall.py --all")
+        else:
+            rm("Virtual environment", venv, dry)
 
     print("\n  Removed:")
     print("\n".join(f"    {r}" for r in removed) or "    nothing")

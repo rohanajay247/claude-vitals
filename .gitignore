@@ -1,0 +1,41 @@
+# Never commit credentials. The app reads the real file from ~/.claude at
+# runtime; this entry guards against a stray copy landing in the repo.
+.credentials.json
+*credentials*.json
+!package-lock.json
+
+# Runtime state: cached usage snapshot, overlay position, toast dedupe markers,
+# and settings.json (which holds the user's own credit total). All machine-local
+# and account-specific -- none of it belongs in the repo.
+# docs/ is deliberately NOT ignored -- the README screenshot lives there.
+state/
+settings.json
+*.cache.json
+usage_cache.json
+settings.local.json
+
+# venv
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Personal reference documentation — kept locally, not published.
+# docs/build_doc.js regenerates it; the mark is only used on its title page.
+*.docx
+docs/build_doc.js
+docs/claude-vitals-mark.png
+
+# Local rendered preview of the README
+README-preview.html
+
+# Editor / OS
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini

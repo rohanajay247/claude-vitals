@@ -46,7 +46,11 @@ class FakeSession:
         return self.responses.pop(0) if self.responses else FakeResponse(500)
 
 
-SAMPLE = json.loads((config.STATE_DIR / "sample_response.json").read_text(encoding="utf-8"))
+# Prefer a real captured response if you have one; otherwise use the sanitised
+# fixture that ships with the repo, so this runs on a fresh clone.
+_live = config.STATE_DIR / "sample_response.json"
+_fixture = Path(__file__).resolve().parent / "sample_response.json"
+SAMPLE = json.loads((_live if _live.exists() else _fixture).read_text(encoding="utf-8"))
 
 print("=== 1. network failure falls back to cache, flagged stale ===")
 cache.save(SAMPLE)   # ensure a good cache exists

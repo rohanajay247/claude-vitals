@@ -191,6 +191,88 @@ def set_app_user_model_id(app_id=APP_USER_MODEL_ID):
         return False
 
 
+# --- single instance ------------------------------------------------------
+# Without this, every click on a pinned taskbar icon starts another copy: more
+# tray icons, more poll loops hammering the endpoint (which shows up as `stale`
+# once the server starts refusing them), and -- worst case -- two instances
+# renewing the same OAuth token at once. Refresh tokens rotate, so the first
+# renewal invalidates the token the second is still holding, and the loser can
+# write credentials that no longer work.
+
+MUTEX_NAME = "Local\\ClaudeVitals.SingleInstance"
+SHOW_EVENT_NAME = "Local\\ClaudeVitals.ShowOverlay"
+
+ERROR_ALREADY_EXISTS = 183
+WAIT_OBJECT_0 = 0
+EVENT_MODIFY_STATE = 0x0002
+
+kernel32.CreateMutexW.restype = wt.HANDLE
+kernel32.CreateEventW.restype = wt.HANDLE
+kernel32.OpenEventW.restype = wt.HANDLE
+kernel32.WaitForSingleObject.argtypes = [wt.HANDLE, wt.DWORD]
+
+
+def acquire_single_instance():
+    """Claim the single-instance lock.
+
+    Returns a handle when this process is the first, or None when another
+    instance already holds it. Keep the handle for the lifetime of the process.
+    Windows frees the mutex when the process ends -- even on a crash -- so a
+    stale lock can never leave the app permanently unstartable.
+    """
+    try:
+        handle = kernel32.CreateMutexW(None, False, MUTEX_NAME)
+        if not handle:
+            return True          # cannot lock; better to run than to refuse
+        if ctypes.get_last_error() == ERROR_ALREADY_EXISTS:
+            kernel32.CloseHandle(handle)
+            return None
+        return handle
+    except Exception:
+        return True              # never let the guard itself block startup
+
+
+def release_single_instance(handle):
+    try:
+        if isinstance(handle, int):
+            kernel32.CloseHandle(handle)
+    except Exception:
+        pass
+
+
+def signal_existing_instance():
+    """Ask the instance already running to surface its overlay."""
+    try:
+        handle = kernel32.OpenEventW(EVENT_MODIFY_STATE, False, SHOW_EVENT_NAME)
+        if not handle:
+            return False
+        kernel32.SetEvent(handle)
+        kernel32.CloseHandle(handle)
+        return True
+    except Exception:
+        return False
+
+
+def create_show_event():
+    """Auto-reset event the running instance waits on. None if unavailable."""
+    try:
+        return kernel32.CreateEventW(None, False, False, SHOW_EVENT_NAME) or None
+    except Exception:
+        return None
+
+
+def wait_show_event(handle, timeout_ms=500):
+    """True when another launch asked us to surface.
+
+    Times out rather than blocking forever so the waiting thread can notice the
+    app is shutting down and exit cleanly.
+    """
+    try:
+        return kernel32.WaitForSingleObject(handle, timeout_ms) == WAIT_OBJECT_0
+    except Exception:
+        return False
+
+
 def restore_foreground(hwnd):
     """Hand the foreground back to a window we displaced.
 

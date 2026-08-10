@@ -83,6 +83,13 @@ class App:
             target=self.tray.run, name="tray", daemon=True
         )
 
+        # Listens for a second launch (a click on the pinned icon, say) and
+        # surfaces this instance instead of letting another one start.
+        self._show_event = win32.create_show_event()
+        self._show_thread = threading.Thread(
+            target=self._watch_show_requests, name="show-watch", daemon=True
+        )
+
     # --- visibility ------------------------------------------------------
 
     def _should_show(self):
@@ -119,6 +126,14 @@ class App:
             self.root.after(0, fn)
         except Exception:
             pass
+
+    def _watch_show_requests(self):
+        """Another launch asked us to appear -- surface, don't duplicate."""
+        if not self._show_event:
+            return
+        while not self.state.stop_event.is_set():
+            if win32.wait_show_event(self._show_event, 500):
+                self._on_tk(self.overlay.bring_to_front)
 
     def _give_back_foreground(self):
         """If starting up displaced someone, put them back."""
@@ -194,6 +209,7 @@ class App:
 
     def run(self):
         self._tray_thread.start()
+        self._show_thread.start()
         self.poller.start()
         self.root.after(200, self.tick)
         # After the first paint has settled, return the foreground if we took it.
@@ -208,8 +224,19 @@ class App:
 
 
 def main():
-    app = App()
-    app.run()
+    # Refuse to start a second copy. Clicking a pinned taskbar icon repeatedly
+    # would otherwise stack up instances, each with its own tray icon and poll
+    # loop. Instead, wake the one already running and exit quietly.
+    lock = win32.acquire_single_instance()
+    if lock is None:
+        win32.signal_existing_instance()
+        return 0
+
+    try:
+        app = App()
+        app.run()
+    finally:
+        win32.release_single_instance(lock)
     return 0
 
 

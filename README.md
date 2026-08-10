@@ -122,6 +122,11 @@ numbers clearly marked `stale`, never a stale number pretending to be live.
 | **Start automatically** | Tray menu → *Start with Windows* |
 | **Stop** | The **✕** on the card, or tray → *Quit* |
 
+**Only one copy ever runs.** Clicking the shortcut again while it's already
+running brings the existing overlay to the front rather than starting a second
+one — so a pinned taskbar icon behaves the way you'd expect, and you can't end
+up with a row of duplicate tray icons.
+
 **✕ stops everything**, including the tray icon — so to start again, use the
 Desktop shortcut. To put the card away without stopping, untick *Show overlay*
 in the tray menu instead.
@@ -260,18 +265,27 @@ I'd rather set expectations properly than claim this is bulletproof:
 
 ## Uninstalling
 
-Everything comes out independently, and nothing is left behind.
+**Quit it from the tray first**, then double-click **`uninstall.bat`**.
 
-| | |
-|---|---|
-| **Stop it** | Tray → *Quit* |
-| **Start with Windows** | Untick it in the tray menu |
-| **Shortcuts** | `.venv\Scripts\python.exe install_shortcuts.py --uninstall` |
-| **Status line** (if installed) | `python statusline\install.py --uninstall` |
-| **Everything else** | Delete this folder |
+That removes every trace outside this folder: the Desktop, Start-menu, Startup
+and taskbar-pin shortcuts, the status line (merging `settings.json` so your
+other settings survive), and — with `--all`, which `uninstall.bat` uses — the
+saved state and the virtual environment. Then delete the folder.
 
-Outside this folder, Claude Vitals only ever creates the shortcuts above and —
-if you installed the status line — two entries in `~/.claude`.
+See exactly what it would do first, without changing anything:
+
+```
+.venv\Scripts\python.exe uninstall.py --dry-run
+```
+
+It refuses to run while the app is still open, so nothing is half-removed while
+files are locked.
+
+**It never touches `~/.claude/.credentials.json`** — that's your Claude Code
+login, not ours. Removing it would sign you out of Claude Code.
+
+> If a taskbar icon lingers after uninstalling, right-click it → *Unpin from
+> taskbar*. Windows caches pins until Explorer restarts.
 
 ---
 
@@ -337,6 +351,7 @@ docs/                   screenshots, diagrams, and the full documentation
 .venv\Scripts\python.exe tools\test_failure_paths.py  # outages, auth recovery, redaction
 .venv\Scripts\python.exe tools\test_settings.py       # settings, dialogs, credit totals
 .venv\Scripts\python.exe tools\test_lock.py           # lock, bring-to-front, buttons
+.venv\Scripts\python.exe tools\test_single_instance.py # only one copy can run
 .venv\Scripts\python.exe tools\test_visibility.py     # follow-Claude visibility
 .venv\Scripts\python.exe tools\verify_overlay.py      # window flags and focus safety
 .venv\Scripts\python.exe tools\smoke_test.py          # icons, one live poll, backoff

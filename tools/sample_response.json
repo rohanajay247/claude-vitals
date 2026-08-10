@@ -1,0 +1,73 @@
+{
+  "_comment": "Sanitised example of the usage endpoint's response, with invented numbers. Used by the tests so they run on a fresh clone. Shape matches a real Pro account response observed 2026-08-10.",
+  "five_hour": {
+    "utilization": 53.0,
+    "resets_at": "2026-08-10T19:29:59.513327+00:00",
+    "limit_dollars": null,
+    "used_dollars": null,
+    "remaining_dollars": null
+  },
+  "seven_day": {
+    "utilization": 36.0,
+    "resets_at": "2026-08-14T15:59:59.513388+00:00",
+    "limit_dollars": null,
+    "used_dollars": null,
+    "remaining_dollars": null
+  },
+  "seven_day_oauth_apps": null,
+  "seven_day_opus": null,
+  "seven_day_sonnet": null,
+  "seven_day_cowork": null,
+  "extra_usage": {
+    "is_enabled": true,
+    "monthly_limit": null,
+    "used_credits": 1240.0,
+    "utilization": null,
+    "currency": "USD",
+    "decimal_places": 2,
+    "disabled_reason": null,
+    "user_disabled": false,
+    "spend_limit_reached": false,
+    "credits_ever_enabled": true,
+    "daily": null,
+    "weekly": null
+  },
+  "limits": [
+    {
+      "kind": "session",
+      "group": "session",
+      "percent": 53,
+      "severity": "normal",
+      "resets_at": "2026-08-10T19:29:59.513327+00:00",
+      "scope": null,
+      "is_active": true
+    },
+    {
+      "kind": "weekly_all",
+      "group": "weekly",
+      "percent": 36,
+      "severity": "normal",
+      "resets_at": "2026-08-14T15:59:59.513388+00:00",
+      "scope": null,
+      "is_active": false
+    }
+  ],
+  "spend": {
+    "used": {
+      "amount_minor": 1240,
+      "currency": "USD",
+      "exponent": 2
+    },
+    "limit": null,
+    "percent": 0,
+    "severity": "normal",
+    "enabled": true,
+    "disabled_reason": null,
+    "cap": null,
+    "balance": null,
+    "auto_reload": null,
+    "can_purchase_credits": false,
+    "can_toggle": false
+  },
+  "member_dashboard_available": false
+}

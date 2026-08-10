@@ -11,7 +11,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from claude_usage import usage  # noqa: E402
 
-SAMPLE = Path(__file__).resolve().parent.parent / "state" / "sample_response.json"
+# The sanitised fixture ships with the repo so this runs on a fresh clone.
+# state/ is gitignored, so a real captured response is only there if you have
+# run tools/refresh_and_probe.py yourself -- prefer it when present.
+HERE = Path(__file__).resolve().parent
+LIVE = HERE.parent / "state" / "sample_response.json"
+SAMPLE = LIVE if LIVE.exists() else HERE / "sample_response.json"
 
 
 def show(name, payload):
@@ -28,6 +33,7 @@ def show(name, payload):
 
 
 real = json.loads(SAMPLE.read_text(encoding="utf-8"))
+print(f"using fixture: {SAMPLE.name} ({'live capture' if SAMPLE == LIVE else 'shipped sample'})")
 show("real response", real)
 
 # `limits` array removed -> must fall back to five_hour / seven_day.

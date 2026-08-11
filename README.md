@@ -105,7 +105,11 @@ because one refresh was refused.
 2. **Download this repository** — green *Code* button → *Download ZIP* → unzip
    it somewhere permanent (not your Downloads folder).
 
-3. **Sign in once**, so Claude Vitals has a login to read. You only do this once.
+3. **Sign in once**, so Claude Vitals has a login to read.
+
+   > This step has **nothing to do with the folder you just unzipped**. It's a
+   > one-time Claude sign-in that saves a login into your user profile, so you
+   > can run it from any directory — Desktop, `C:\`, wherever PowerShell opens.
 
    Open **PowerShell** and run:
 
@@ -130,11 +134,17 @@ because one refresh was refused.
    > subscription to create this login. That's a limit of the account, not a
    > charge from Claude Vitals, which is free.
 
-4. **Double-click `setup.bat`.** It creates a private Python environment,
-   installs the dependencies, and adds Desktop and Start-menu shortcuts. It
-   changes nothing outside this folder.
+4. **Double-click `setup.bat`** — this one *is* inside the unzipped folder. No
+   terminal needed. It creates a private Python environment, installs the
+   dependencies, and adds Desktop and Start-menu shortcuts.
 
-5. **Start it** from the Desktop icon.
+5. **Start it** from the Desktop icon, then set your credit total from the tray
+   menu (*Set usage credits total…*) if your account has credits.
+
+> **In short:** step 3 is a one-off Claude sign-in you can run from anywhere.
+> Step 4 is a double-click inside the folder. They're unrelated, and the order
+> doesn't strictly matter — signing in first just means it works on the very
+> first launch instead of showing you a "can't find your login" dialog.
 
 ---
 

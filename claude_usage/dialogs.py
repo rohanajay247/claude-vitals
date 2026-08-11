@@ -52,8 +52,9 @@ SETUP_HELP = {
         "          | Select-Object -First 1).FullName setup-token\n\n"
         "Then start Claude Vitals again. You don't have to use Claude Code\n"
         "afterwards — that's just where the login gets stored.\n\n"
-        "On the free plan this won't work: signing in this way needs a\n"
-        "subscription, and so does Claude Vitals. Sorry!"
+        "On Anthropic's free Claude tier this won't work: creating that login\n"
+        "needs a paid Claude subscription. That's a limit of the account, not\n"
+        "a charge from Claude Vitals — this app is free. Sorry!"
     ),
     "expired": (
         "Your Claude login has expired",

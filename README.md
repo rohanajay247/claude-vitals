@@ -2,6 +2,11 @@
 
 **See how much Claude you have left, without leaving your conversation.**
 
+**Claude Vitals is free, and always will be** — open source under the MIT
+licence, no accounts, no payment, nothing to buy. Where this page mentions a
+"paid plan", that means *your Claude subscription with Anthropic*, which the app
+reads your usage from. It has nothing to do with Claude Vitals itself.
+
 Claude Code shows your usage in a built-in panel. The ordinary Chat tab doesn't —
 to see the same numbers you have to stop, open Settings, and click through to
 Usage. Claude Vitals puts them on screen instead: a small always-on-top card and
@@ -43,16 +48,21 @@ below rather than assuming.
 
 | | |
 |---|---|
+| **Price of Claude Vitals** | **Free.** Open source, MIT licence. Nothing to buy, ever. |
 | **Operating system** | Windows 10 or 11 only. No macOS or Linux build. |
-| **Claude plan** | **Pro, Max, Team, or API credits.** |
-| **Not supported** | **The free Claude plan.** See below. |
-| **Python** | 3.10 or newer |
+| **Your Claude subscription** | Must be a **paid Anthropic plan** — Pro, Max, Team, or API credits. This is the subscription you already pay Anthropic for, not a charge from this app. |
+| **Won't work on** | Anthropic's **free Claude tier**. See below. |
+| **Python** | 3.10 or newer (free, from python.org) |
 
-**Why the free plan can't work:** Claude Vitals reads the login that Claude Code
-stores on your machine, and Claude Code requires a paid plan. On the free plan
-that login never exists, so there is nothing for Claude Vitals to authenticate
-with. If you launch it anyway it will tell you this in plain language rather
-than failing silently.
+**Why Anthropic's free tier can't work:** Claude Vitals reads the login that
+Claude stores on your machine, and creating that login requires a paid Anthropic
+plan. On the free tier it never exists, so there's nothing for Claude Vitals to
+read your usage with. If you launch it anyway it says so in plain language
+rather than failing silently.
+
+To be completely clear: **this is not a limitation we chose, and not a paywall.**
+Claude Vitals costs nothing. It simply has no way to see usage figures for an
+account that doesn't expose them.
 
 You also need to have signed in to Claude Code at least once — see
 [Installation](#installation) step 3.
@@ -122,8 +132,9 @@ because one refresh was refused.
 
    > You do **not** need to use Claude Code afterwards. This step exists purely
    > because that's where Claude stores a login on your machine. If you're on the
-   > free plan, `setup-token` will refuse — it requires a subscription, and so
-   > does Claude Vitals.
+   > free Claude tier, `setup-token` itself will refuse — Anthropic requires a
+   > subscription to create this login. That's a limit of the account, not a
+   > charge from Claude Vitals, which is free.
 
 4. **Double-click `setup.bat`.** It creates a private Python environment,
    installs the dependencies, and adds Desktop and Start-menu shortcuts. It
@@ -274,7 +285,8 @@ I'd rather set expectations properly than claim this is bulletproof:
   endorsed automated polling of it. Three minutes between requests is modest and
   far below anything you'd do by refreshing the Settings page, but you should
   make your own judgement about using an unofficial API with your account.
-- **It can't work at all on the free plan**, and it's Windows-only.
+- **It can't work at all on Anthropic's free Claude tier**, and it's
+  Windows-only. (Claude Vitals itself is free either way.)
 - **Bugs are possible.** The tests cover the paths I could think of, including
   outages, expired logins and malformed responses — they don't prove absence.
 
@@ -284,7 +296,7 @@ I'd rather set expectations properly than claim this is bulletproof:
 
 | Symptom | What's happening |
 |---|---|
-| **A dialog says it can't find your Claude login** | You haven't done step 3 of [Installation](#installation), or you're on the free plan (not supported). |
+| **A dialog says it can't find your Claude login** | You haven't done step 3 of [Installation](#installation), or you're on Anthropic's free Claude tier (not supported). |
 | **`claude` is not recognised** | Normal if you only use the desktop app — use the longer command in step 3, which finds the copy the app ships. |
 | **A dialog says your login expired** | Repeat step 3. The desktop app signs in separately and doesn't refresh this file. |
 | **Tray shows a grey dash** | It can't reach the endpoint. Try *Refresh now*; if it persists, the endpoint may have changed. |

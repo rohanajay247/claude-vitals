@@ -114,7 +114,12 @@ try:
 
     missing = dialogs.SETUP_HELP["missing"][1]
     expired = dialogs.SETUP_HELP["expired"][1]
-    check("missing-login help says the free plan can't work", "free plan" in missing)
+    check("missing-login help says Anthropic's free tier can't work",
+          "free Claude tier" in missing)
+    # People were reading "paid plan" as "Claude Vitals costs money" and
+    # bouncing. Every mention must name whose plan it is, and say this is free.
+    check("missing-login help states the app itself is free",
+          "Claude Vitals — this app is free" in missing or "this app is free" in missing)
     check("missing-login help gives the setup-token command", "setup-token" in missing)
     # Anyone who only uses the desktop app has no `claude` on PATH, so the bare
     # command on its own would be a dead end for exactly the people who need it.

@@ -2,10 +2,8 @@
 
 **See how much Claude you have left, without leaving your conversation.**
 
-**Claude Vitals is free, and always will be** — open source under the MIT
-licence, no accounts, no payment, nothing to buy. Where this page mentions a
-"paid plan", that means *your Claude subscription with Anthropic*, which the app
-reads your usage from. It has nothing to do with Claude Vitals itself.
+**Free and open source.** The "paid plan" mentioned below means your Claude
+subscription with Anthropic — not a charge for this app.
 
 Claude Code shows your usage in a built-in panel. The ordinary Chat tab doesn't —
 to see the same numbers you have to stop, open Settings, and click through to
@@ -48,21 +46,17 @@ below rather than assuming.
 
 | | |
 |---|---|
-| **Price of Claude Vitals** | **Free.** Open source, MIT licence. Nothing to buy, ever. |
+| **Price** | **Free** — open source, MIT licence |
 | **Operating system** | Windows 10 or 11 only. No macOS or Linux build. |
-| **Your Claude subscription** | Must be a **paid Anthropic plan** — Pro, Max, Team, or API credits. This is the subscription you already pay Anthropic for, not a charge from this app. |
-| **Won't work on** | Anthropic's **free Claude tier**. See below. |
-| **Python** | 3.10 or newer (free, from python.org) |
+| **Your Claude plan** | A paid Anthropic plan — Pro, Max, Team, or API credits |
+| **Won't work on** | Anthropic's free Claude tier |
+| **Python** | 3.10 or newer |
 
 **Why Anthropic's free tier can't work:** Claude Vitals reads the login that
-Claude stores on your machine, and creating that login requires a paid Anthropic
-plan. On the free tier it never exists, so there's nothing for Claude Vitals to
-read your usage with. If you launch it anyway it says so in plain language
-rather than failing silently.
-
-To be completely clear: **this is not a limitation we chose, and not a paywall.**
-Claude Vitals costs nothing. It simply has no way to see usage figures for an
-account that doesn't expose them.
+Claude stores on your machine, and creating that login needs a paid Anthropic
+plan. On the free tier it never exists, so there's nothing to read your usage
+with. If you launch it anyway it says so in plain language rather than failing
+silently.
 
 You also need to have signed in to Claude Code at least once — see
 [Installation](#installation) step 3.

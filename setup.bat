@@ -11,30 +11,45 @@ echo   Claude Vitals - setup
 echo   =====================
 echo.
 
+REM --- Python -------------------------------------------------------------
+REM Anyone who already has a suitable Python passes straight through and is
+REM never prompted. Only if none is found do we offer to install one.
+set "PYOK="
 where python >nul 2>&1
-if errorlevel 1 (
-    echo   ERROR: Python was not found on your PATH.
-    echo.
-    echo   Install Python 3.10 or newer from https://www.python.org/downloads/
-    echo   and tick "Add python.exe to PATH" during installation.
-    echo.
-    pause
-    exit /b 1
+if not errorlevel 1 (
+    python -c "import sys; sys.exit(0 if sys.version_info >= (3,10) else 1)" >nul 2>&1
+    if not errorlevel 1 set "PYOK=1"
 )
 
-REM Fail early and clearly on an unsupported version rather than mid-install.
-python -c "import sys; sys.exit(0 if sys.version_info >= (3,10) else 1)"
-if errorlevel 1 (
-    echo   ERROR: Claude Vitals needs Python 3.10 or newer.
-    python -c "import sys; print('   You have: ' + sys.version.split()[0])"
-    echo.
-    pause
-    exit /b 1
+if not defined PYOK (
+    powershell -NoProfile -ExecutionPolicy Bypass -File "tools\install_python.ps1"
+    if errorlevel 2 (
+        echo.
+        pause
+        exit /b 1
+    )
+    if errorlevel 1 (
+        echo.
+        pause
+        exit /b 1
+    )
+    REM The installer put Python on PATH, but not in this already-running shell.
+    for /f "delims=" %%P in ('powershell -NoProfile -Command "$env:Path=[Environment]::GetEnvironmentVariable('Path','Machine')+';'+[Environment]::GetEnvironmentVariable('Path','User'); (Get-Command python -ErrorAction SilentlyContinue).Source"') do set "PYEXE=%%P"
+    if not defined PYEXE (
+        echo   Python installed, but this window can't see it yet.
+        echo   Close this window, open a new one, and run setup.bat again.
+        echo.
+        pause
+        exit /b 1
+    )
+) else (
+    set "PYEXE=python"
 )
 
+REM --- virtual environment ------------------------------------------------
 if not exist ".venv\Scripts\python.exe" (
     echo   Creating virtual environment...
-    python -m venv .venv
+    "%PYEXE%" -m venv .venv
     if errorlevel 1 (
         echo   ERROR: could not create the virtual environment.
         pause

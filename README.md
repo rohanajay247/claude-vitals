@@ -25,19 +25,16 @@ typing while it updates.
 | **OS** | Windows 10 or 11 |
 | **Claude plan** | A paid Anthropic plan — Pro, Max, Team, or API credits |
 | **Won't work on** | Anthropic's free Claude tier |
-| **Python** | 3.10 or newer |
+| **Python** | 3.10+ — `setup.bat` installs it if you don't have it |
 
 ---
 
 ## Install
 
-**1.** Install [Python 3.10+](https://www.python.org/downloads/) — tick
-**"Add python.exe to PATH"**.
-
-**2.** Download this repo (green **Code** → **Download ZIP**) and unzip it
+**1.** Download this repo (green **Code** → **Download ZIP**) and unzip it
 somewhere permanent.
 
-**3.** Sign in to Claude once, so the app has a login to read. Open PowerShell
+**2.** Sign in to Claude once, so the app has a login to read. Open PowerShell
 (from anywhere — this isn't related to the folder) and run:
 
 ```powershell
@@ -56,8 +53,11 @@ Normal if you only use the Claude desktop app. It ships its own copy:
 Check it worked with `claude auth status` — you want `"loggedIn": true`.
 </details>
 
-**4.** Double-click **`setup.bat`** in the unzipped folder, then start Claude
+**3.** Double-click **`setup.bat`** in the unzipped folder, then start Claude
 Vitals from the Desktop icon.
+
+If you don't have Python, `setup.bat` offers to install it for you — for your
+user only, so no administrator prompt. If you already have it, nothing changes.
 
 If your account has usage credits, set your total once from the tray menu →
 *Set usage credits total…*

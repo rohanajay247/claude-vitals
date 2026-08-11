@@ -2,449 +2,117 @@
 
 **See how much Claude you have left, without leaving your conversation.**
 
-**Free and open source.** The "paid plan" mentioned below means your Claude
-subscription with Anthropic — not a charge for this app.
-
-Claude Code shows your usage in a built-in panel. The ordinary Chat tab doesn't —
-to see the same numbers you have to stop, open Settings, and click through to
-Usage. Claude Vitals puts them on screen instead: a small always-on-top card and
-a colour-coded tray icon.
-
 <p align="center">
-  <img src="docs/demo.gif" alt="The Claude Vitals overlay updating, and the lock being toggled" width="420">
+  <img src="docs/demo.gif" alt="The Claude Vitals overlay" width="420">
 </p>
 
-> ⚠️ **This is a personal side project. It is not affiliated with, endorsed by,
-> or supported by Anthropic.** It reads an undocumented endpoint that Anthropic
-> has never published and could change or remove at any time — if that happens,
-> Claude Vitals will stop showing live numbers. Use it at your own risk.
-> "Claude" is a trademark of Anthropic; this project just talks to it.
+A small always-on-top card and a colour-coded tray icon showing your 5-hour
+limit, weekly limit and credit spend. It never steals focus, so you can keep
+typing while it updates.
+
+**Free and open source.** "Paid plan" below means your Claude subscription with
+Anthropic — not a charge for this app.
+
+> Unofficial personal project, not affiliated with or endorsed by Anthropic. It
+> reads an undocumented endpoint that could change at any time.
 
 ---
 
-## Why this exists
-
-I kept running into the same small annoyance. Mid-conversation, I'd wonder how
-much of my allowance was left — and the only way to find out was to stop, open
-Settings, click through to Usage, read a number, and come back. Over and over,
-several times a day. Claude Code shows this in a panel right there; the Chat tab
-just doesn't.
-
-So I built the thing I wanted: the number always visible, never in the way, and
-never something I have to go looking for.
-
-**Built with Claude Code — vibecoded**, over a handful of sessions. That said,
-it isn't a throwaway: the tricky parts (never stealing focus, surviving outages,
-never leaking your token) were worked through deliberately, the code is
-commented, and there's a test suite you can run yourself. But it's a side
-project by one person, not production software — please read the safety notes
-below rather than assuming.
-
----
-
-## Does this work for me?
+## Requirements
 
 | | |
 |---|---|
-| **Price** | **Free** — open source, MIT licence |
-| **Operating system** | Windows 10 or 11 only. No macOS or Linux build. |
-| **Your Claude plan** | A paid Anthropic plan — Pro, Max, Team, or API credits |
+| **Price** | Free, MIT licence |
+| **OS** | Windows 10 or 11 |
+| **Claude plan** | A paid Anthropic plan — Pro, Max, Team, or API credits |
 | **Won't work on** | Anthropic's free Claude tier |
 | **Python** | 3.10 or newer |
 
-**Why Anthropic's free tier can't work:** Claude Vitals reads the login that
-Claude stores on your machine, and creating that login needs a paid Anthropic
-plan. On the free tier it never exists, so there's nothing to read your usage
-with. If you launch it anyway it says so in plain language rather than failing
-silently.
-
-You also need to have signed in to Claude Code at least once — see
-[Installation](#installation) step 3.
-
 ---
 
-## What it does
+## Install
 
-![Every part of the overlay, labelled](docs/diagram-anatomy.png)
+**1.** Install [Python 3.10+](https://www.python.org/downloads/) — tick
+**"Add python.exe to PATH"**.
 
-**A card on screen** showing your 5-hour allowance, your weekly allowance, and
-your credit spend. Each row has a thin bar that's green under 50%, amber to 80%,
-and red above.
+**2.** Download this repo (green **Code** → **Download ZIP**) and unzip it
+somewhere permanent.
 
-**A tray icon** — a ring showing the current percentage, in the same colours.
-Hover for both allowances with countdowns to reset.
+**3.** Sign in to Claude once, so the app has a login to read. Open PowerShell
+(from anywhere — this isn't related to the folder) and run:
 
-**It stays out of your way:**
+```powershell
+claude auth login
+```
 
-- **It never steals focus.** You can keep typing in Claude while it appears,
-  updates, or you click its buttons. This is the whole reason it's usable.
-- **Lock / unlock.** Locked, it floats above everything. Unlocked, ordinary
-  windows — a fullscreen video, say — can cover it. Your choice is remembered.
-- **It's not in Alt-Tab or the taskbar.** It's a tray app, not a window.
-- **Drag it anywhere.** It remembers where you put it.
+<details>
+<summary>If that says <code>claude</code> is not recognised</summary>
 
-**It's honest when it doesn't know.** If checks keep failing you get the last
-known numbers clearly marked `stale`, never a stale number pretending to be live.
+Normal if you only use the Claude desktop app. It ships its own copy:
 
-**It respects the server.** The usage endpoint rate-limits hard — a second
-request a couple of seconds after the first comes back `429`. So Claude Vitals
-polls once every 3 minutes, ignores a manual refresh when the figures are
-already under 30 seconds old, and waits at least a minute after being rate
-limited. A `429` never discards good numbers: your usage hasn't changed just
-because one refresh was refused.
+```powershell
+& (Get-ChildItem "$env:APPDATA\Claude\claude-code\*\claude.exe" | Sort-Object FullName -Descending | Select-Object -First 1).FullName auth login
+```
 
-**Costs almost nothing:** about 0.3% of one CPU core and ~55 MB of memory.
+Check it worked with `claude auth status` — you want `"loggedIn": true`.
+Don't use `claude setup-token`; it prints a token instead of saving a login.
+</details>
 
----
+**4.** Double-click **`setup.bat`** in the unzipped folder, then start Claude
+Vitals from the Desktop icon.
 
-## Installation
-
-1. **Install Python 3.10 or newer** from [python.org](https://www.python.org/downloads/)
-   if you don't have it. Tick **"Add python.exe to PATH"** during installation.
-
-2. **Download this repository** — green *Code* button → *Download ZIP* → unzip
-   it somewhere permanent (not your Downloads folder).
-
-3. **Sign in once**, so Claude Vitals has a login to read.
-
-   > This step has **nothing to do with the folder you just unzipped**. It's a
-   > one-time Claude sign-in that saves a login into your user profile, so you
-   > can run it from any directory — Desktop, `C:\`, wherever PowerShell opens.
-
-   Open **PowerShell** and run:
-
-   ```powershell
-   claude auth login
-   ```
-
-   **If that says `claude` is not recognised** — which it will if you only use
-   the Claude desktop app and have never installed Claude Code — the desktop app
-   already ships a copy. This finds it whatever version you have:
-
-   ```powershell
-   & (Get-ChildItem "$env:APPDATA\Claude\claude-code\*\claude.exe" | Sort-Object FullName -Descending | Select-Object -First 1).FullName auth login
-   ```
-
-   Follow the browser sign-in it opens. When it finishes, a file appears at
-   `%USERPROFILE%\.claude\.credentials.json` — that's what Claude Vitals reads.
-
-   Check it worked (replace `claude` with the long path if needed):
-
-   ```powershell
-   claude auth status
-   ```
-
-   You want `"loggedIn": true`.
-
-   > ⚠️ **Don't use `claude setup-token` for this.** It creates a long-lived
-   > token and prints it on screen for use as an environment variable — it does
-   > **not** write the credentials file, so Claude Vitals still won't find a
-   > login. It also puts a year-long credential in your terminal history, which
-   > you then have to keep secret. `auth login` is the one you want.
-
-   > You do **not** need to use Claude Code afterwards. This step exists purely
-   > because that's where Claude stores a login on your machine. If you're on the
-   > free Claude tier, signing in this way won't give Claude Vitals anything to
-   > read — Anthropic requires a subscription. That's a limit of the account,
-   > not a charge from Claude Vitals, which is free.
-
-4. **Double-click `setup.bat`** — this one *is* inside the unzipped folder. No
-   terminal needed. It creates a private Python environment, installs the
-   dependencies, and adds Desktop and Start-menu shortcuts.
-
-5. **Start it** from the Desktop icon, then set your credit total from the tray
-   menu (*Set usage credits total…*) if your account has credits.
-
-> **In short:** step 3 is a one-off Claude sign-in you can run from anywhere.
-> Step 4 is a double-click inside the folder. They're unrelated, and the order
-> doesn't strictly matter — signing in first just means it works on the very
-> first launch instead of showing you a "can't find your login" dialog.
+If your account has usage credits, set your total once from the tray menu →
+*Set usage credits total…*
 
 ---
 
 ## Using it
 
-![Start it, work, stop it](docs/diagram-user-flow.png)
-
-### Starting and stopping
-
-| | |
+| Control | What it does |
 |---|---|
-| **Start** | Desktop icon, Start menu (type "Claude Vitals"), or `start.bat` |
-| **Start automatically** | Tray menu → *Start with Windows* |
-| **Stop** | The **✕** on the card, or tray → *Quit* |
+| 🔒 **Lock** | Orange = always on top. Grey = other windows can cover it. |
+| ⟳ **Refresh** | Check now instead of waiting for the 3-minute poll. |
+| ✕ **Close** | Stops everything, including the tray icon. |
 
-**Only one copy ever runs.** Clicking the shortcut again while it's already
-running brings the existing overlay to the front rather than starting a second
-one — so a pinned taskbar icon behaves the way you'd expect, and you can't end
-up with a row of duplicate tray icons.
-
-**✕ stops everything**, including the tray icon — so to start again, use the
-Desktop shortcut. To put the card away without stopping, untick *Show overlay*
-in the tray menu instead.
-
-### The three buttons
-
-| Button | What it does |
-|---|---|
-| 🔒 **Lock** | Orange padlock: always on top. Grey open padlock: other windows can cover it. |
-| ⟳ **Refresh** | Check now instead of waiting for the next automatic check. Ignored if the figures are already less than 30s old — see below. |
-| ✕ **Close** | Stop everything. |
-
-### Lost it?
-
-If it's unlocked, something may be covering it. **Left-click the tray icon** to
-bring it straight back — that's the tray's default action. Clicking the Desktop
-or taskbar shortcut again does the same thing.
-
-While unlocked it's held on top just long enough for you to read it, then slips
-back into the normal order once you switch to another window. Your lock setting
-isn't changed, and your focus is never taken.
-
-> Why it works that way: Windows won't let a background window climb above the
-> active one unless it activates — and activating would steal your cursor
-> mid-sentence. Holding it on top briefly is the way to surface it without that.
-
-### Tray menu
-
-| Option | What it does |
-|---|---|
-| Bring overlay to front | Surface the card. Also the left-click action. |
-| Refresh now | Check immediately. |
-| Lock on top | Same as the padlock. |
-| Show overlay | Hide the card, keep checking in the background. |
-| Usage alerts (80% / 95%) | Windows pop-ups at those thresholds. **Off by default.** |
-| Always visible | On: always shown. Off: shown only while the Claude app is focused. |
-| Set usage credits total… | See below. |
-| Start with Windows | Launch at login. |
-| Quit | Stop everything. |
-
----
-
-## Usage credits
-
-If your account has usage credits, the third row shows what you've spent.
-
-Claude's API reports what you have **spent**, but not your **balance** or the
-**total you were granted** — those come back empty unless your account has a
-monthly spend cap set. So most people need to tell Claude Vitals the total once:
-
-**Tray menu → *Set usage credits total…***
-
-Find the figure in Claude under **Settings → Usage**: add the *amount spent* to
-your *current balance*. Enter that. The spent side stays live from the API, so
-the row keeps itself up to date afterwards.
-
-Leave it blank and the row simply shows the amount spent, with no bar. If your
-account *does* expose a spend cap, it's picked up automatically and you never
-need to touch this.
-
-> Credits expire. If yours were promotional, update the total when they lapse or
-> when you top up.
-
----
-
-## Privacy and security
-
-Please read this rather than taking it on trust — it's a small program and you
-can verify every claim below in a few minutes.
-
-### What it changes on your machine
-
-Three things, and nothing else:
-
-1. **It can rewrite `~/.claude/.credentials.json`.** This is the most
-   consequential thing it does, so it deserves a clear explanation. Your Claude
-   login expires roughly every 8 hours, and the desktop app doesn't refresh that
-   file — so Claude Vitals renews it using the refresh token already stored
-   there. **It copies the file to `.credentials.json.bak` first** and writes the
-   replacement atomically, so an interrupted renewal can't leave you with a
-   truncated file. Worst realistic case: the renewal fails and you sign in again
-   with `claude auth login`.
-2. **Shortcuts** in your Start menu, on your Desktop, and — only if you ask for
-   it — in your Startup folder. All plain `.lnk` files you can delete.
-3. **If you install the optional status line**, two entries under `~/.claude`
-   (the script itself, and a `statusLine` key in `settings.json`). Your existing
-   settings are backed up first and merged, never overwritten.
-
-Everything else it writes stays inside this folder.
-
-### What leaves your machine
-
-- **Exactly two addresses, both Anthropic's**, and you can grep the source to
-  confirm it: `api.anthropic.com/api/oauth/usage` to read your usage, and
-  `console.anthropic.com/v1/oauth/token` to renew your login.
-- **One request every 3 minutes.** No server of ours, no analytics, no
-  telemetry, no third party, nothing listening for incoming connections.
-- **Your login is read fresh from disk per request**, used, and discarded. It is
-  never copied into the app's own files, never logged, and never printed. Error
-  messages are scrubbed before display, and the credential object's `repr` is
-  overridden so a token can't leak through a stack trace.
-- **What's stored locally**, all inside this folder and all deletable:
-  `state/usage_cache.json` (last known figures), `state/ui_state.json` (window
-  position and toggles), `state/settings.json` (your credit total).
-- **`.gitignore` covers** credential files, the whole `state/` folder, and the
-  virtual environment — so none of it can be committed by accident.
-
-`tools/test_failure_paths.py` asserts the redaction behaviour, and the whole
-thing is a few hundred lines of readable Python.
-
-### Honest limitations
-
-I'd rather set expectations properly than claim this is bulletproof:
-
-- **It's a side project, not audited software.** MIT licence, no warranty. Read
-  the code — that's a realistic thing to do here, and it's the best assurance
-  anyone can give you.
-- **It has dependencies** — `pystray`, `Pillow`, `requests`, `pywin32`. Versions
-  are pinned, but installing anything from PyPI carries the usual supply-chain
-  risk, same as any Python project.
-- **The endpoint is undocumented.** Anthropic never published it and hasn't
-  endorsed automated polling of it. Three minutes between requests is modest and
-  far below anything you'd do by refreshing the Settings page, but you should
-  make your own judgement about using an unofficial API with your account.
-- **It can't work at all on Anthropic's free Claude tier**, and it's
-  Windows-only. (Claude Vitals itself is free either way.)
-- **Bugs are possible.** The tests cover the paths I could think of, including
-  outages, expired logins and malformed responses — they don't prove absence.
+- **Lost it?** Left-click the tray icon to bring it forward.
+- **Only one copy runs** — clicking the shortcut again surfaces the existing one.
+- Drag it anywhere; it remembers where you put it.
+- Right-click the tray icon for more: alerts, always-visible mode, start with
+  Windows.
 
 ---
 
 ## Troubleshooting
 
-| Symptom | What's happening |
+| Problem | Fix |
 |---|---|
-| **A dialog says it can't find your Claude login** | You haven't done step 3 of [Installation](#installation), or you're on Anthropic's free Claude tier (not supported). |
-| **`claude` is not recognised** | Normal if you only use the desktop app — use the longer command in step 3, which finds the copy the app ships. |
-| **A dialog says your login expired** | Repeat step 3. The desktop app signs in separately and doesn't refresh this file. |
-| **Tray shows a grey dash** | It can't reach the endpoint. Try *Refresh now*; if it persists, the endpoint may have changed. |
-| **The card never appears** | Check the tray icon exists, then left-click it. |
-| **It vanished behind a video** | It's unlocked. Left-click the tray icon, or click the padlock. |
-| **The card is off-screen** | Delete `state/ui_state.json` to reset its position. |
-| **It doesn't follow my Claude window** | Run `tools\probe_foreground.py 6` to see what your Claude app is called, then add that name to `extra_claude_processes` in `state/settings.json`. |
+| "Can't find your Claude login" | Do step 3, or you're on the free tier (not supported). |
+| "Your login expired" | Run `claude auth login` again. |
+| `claude` is not recognised | Use the long command in step 3. |
+| Tray shows a grey `–` | Can't reach the endpoint. Try *Refresh now*. |
+| Card is off-screen | Delete `state/ui_state.json`. |
 
 ---
 
-## Uninstalling
+## Uninstall
 
-**Quit it from the tray first**, then double-click **`uninstall.bat`**.
-
-That removes every trace outside this folder: the Desktop, Start-menu, Startup
-and taskbar-pin shortcuts, the status line (merging `settings.json` so your
-other settings survive), and — with `--all`, which `uninstall.bat` uses — the
-saved state and the virtual environment. Then delete the folder.
-
-See exactly what it would do first, without changing anything:
-
-```
-.venv\Scripts\python.exe uninstall.py --dry-run
-```
-
-It refuses to run while the app is still open, so nothing is half-removed while
-files are locked.
-
-**It never touches `~/.claude/.credentials.json`** — that's your Claude Code
-login, not ours. Removing it would sign you out of Claude Code.
-
-> If a taskbar icon lingers after uninstalling, right-click it → *Unpin from
-> taskbar*. Windows caches pins until Explorer restarts.
+Quit from the tray, then double-click **`uninstall.bat`** and delete the folder.
+It removes shortcuts, the taskbar pin and saved state, and never touches your
+Claude login.
 
 ---
 
-## Optional: the Claude Code status line
+## Privacy
 
-`statusline/` adds a two-line status line to Claude Code in a terminal, showing
-model, context and rate limits. Install with:
-
-```
-python statusline\install.py
-```
-
-> **It will not appear in the Claude desktop app.** The desktop app's Claude Code
-> interface has no status-line renderer — it's a terminal feature. It works when
-> you run Claude Code in an actual terminal window.
-
-This part makes no network requests; Claude Code hands it the data directly.
+- One request every 3 minutes, to `api.anthropic.com`. Nothing else leaves your
+  machine — no server, no analytics, no third party.
+- Your Claude login is read from disk per request, never copied, logged or
+  printed.
+- Everything it saves lives in this folder and can be deleted.
 
 ---
 
-## How it works
+**[More detail →](docs/DETAILS.md)** — how it works, full privacy notes,
+performance, running the tests, and the optional Claude Code status line.
 
-![Architecture](docs/diagram-architecture.png)
-
-One program doing three things at once: a **fetcher** that asks the endpoint for
-your usage every 3 minutes, **shared memory** holding the latest numbers, and the
-**tray and overlay** that draw them. Splitting it this way means the display
-never waits on the network.
-
-When a check fails, it falls back to the last cached numbers marked `stale`, and
-retries on a widening gap (30s, 1m, 2m … capped at 15m) so it never hammers the
-server. If your login is rejected it re-reads the file, then renews the token
-automatically — backing up the original first.
-
-![What happens on failure](docs/diagram-failure.png)
-
-### Project layout
-
-```
-run.pyw                 entry point (checks your Python version first)
-setup.bat               one-click first-time setup
-claude_usage/
-  config.py             paths, thresholds, palette
-  settings.py           user settings (state/settings.json)
-  credentials.py        reads and renews the OAuth token; redaction
-  usage.py              fetches and normalises the endpoint response
-  cache.py              last-good snapshot and UI state
-  poller.py             the single poll loop, backoff, alert de-duplication
-  tray.py               tray icon, tooltip, menu
-  overlay.py            the frameless always-on-top card
-  dialogs.py            settings and first-run help dialogs
-  win32.py              foreground detection, focus-safe windows, shortcuts
-  app.py                thread wiring
-statusline/             optional Claude Code status line
-tools/                  diagnostics and tests, all runnable standalone
-docs/                   screenshots, diagrams, and the full documentation
-```
-
-### Running the tests
-
-```
-.venv\Scripts\python.exe tools\test_parse.py          # parsing, incl. hostile input
-.venv\Scripts\python.exe tools\test_failure_paths.py  # outages, auth recovery, redaction
-.venv\Scripts\python.exe tools\test_settings.py       # settings, dialogs, credit totals
-.venv\Scripts\python.exe tools\test_lock.py           # lock, bring-to-front, buttons
-.venv\Scripts\python.exe tools\test_single_instance.py # only one copy can run
-.venv\Scripts\python.exe tools\test_peek.py           # surfacing a buried overlay
-.venv\Scripts\python.exe tools\test_rate_limit.py     # 429 handling, stale threshold
-.venv\Scripts\python.exe tools\test_visibility.py     # follow-Claude visibility
-.venv\Scripts\python.exe tools\verify_overlay.py      # window flags and focus safety
-.venv\Scripts\python.exe tools\smoke_test.py          # icons, one live poll, backoff
-.venv\Scripts\python.exe tools\measure_cost.py        # CPU and memory
-python statusline\test_statusline.py                  # status line, mocked input
-```
-
-Regenerating the images in `docs/`, if you change how the overlay looks:
-
-```
-.venv\Scripts\python.exe tools\make_demo_shot.py      # the still, with invented numbers
-.venv\Scripts\python.exe tools\make_demo_gif.py       # the animated demo
-.venv\Scripts\python.exe docs\make_diagrams.py        # the explanatory diagrams
-```
-
----
-
-## Contributing
-
-Issues and pull requests are welcome, but this is a side project maintained in
-spare time — please don't expect fast responses. The most useful contributions
-would be macOS or Linux support (the Windows-specific parts are confined to
-`win32.py`), or reports of what the endpoint returns on Max and Team accounts.
-
----
-
-## Licence
-
-[MIT](LICENSE) — do what you like with it, no warranty.
-
-**Again, clearly:** this is an unofficial personal project with no connection to
-Anthropic. It depends on an undocumented API that may break without notice.
+[MIT](LICENSE) · unofficial, no warranty, may break without notice.

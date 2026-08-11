@@ -10,8 +10,7 @@ A small always-on-top card and a colour-coded tray icon showing your 5-hour
 limit, weekly limit and credit spend. It never steals focus, so you can keep
 typing while it updates.
 
-**Free and open source.** "Paid plan" below means your Claude subscription with
-Anthropic — not a charge for this app.
+**Free and open source.**
 
 > Unofficial personal project, not affiliated with or endorsed by Anthropic. It
 > reads an undocumented endpoint that could change at any time.
@@ -55,7 +54,6 @@ Normal if you only use the Claude desktop app. It ships its own copy:
 ```
 
 Check it worked with `claude auth status` — you want `"loggedIn": true`.
-Don't use `claude setup-token`; it prints a token instead of saving a login.
 </details>
 
 **4.** Double-click **`setup.bat`** in the unzipped folder, then start Claude

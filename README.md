@@ -114,7 +114,7 @@ because one refresh was refused.
    Open **PowerShell** and run:
 
    ```powershell
-   claude setup-token
+   claude auth login
    ```
 
    **If that says `claude` is not recognised** — which it will if you only use
@@ -122,17 +122,31 @@ because one refresh was refused.
    already ships a copy. This finds it whatever version you have:
 
    ```powershell
-   & (Get-ChildItem "$env:APPDATA\Claude\claude-code\*\claude.exe" | Sort-Object FullName -Descending | Select-Object -First 1).FullName setup-token
+   & (Get-ChildItem "$env:APPDATA\Claude\claude-code\*\claude.exe" | Sort-Object FullName -Descending | Select-Object -First 1).FullName auth login
    ```
 
    Follow the browser sign-in it opens. When it finishes, a file appears at
    `%USERPROFILE%\.claude\.credentials.json` — that's what Claude Vitals reads.
 
+   Check it worked (replace `claude` with the long path if needed):
+
+   ```powershell
+   claude auth status
+   ```
+
+   You want `"loggedIn": true`.
+
+   > ⚠️ **Don't use `claude setup-token` for this.** It creates a long-lived
+   > token and prints it on screen for use as an environment variable — it does
+   > **not** write the credentials file, so Claude Vitals still won't find a
+   > login. It also puts a year-long credential in your terminal history, which
+   > you then have to keep secret. `auth login` is the one you want.
+
    > You do **not** need to use Claude Code afterwards. This step exists purely
    > because that's where Claude stores a login on your machine. If you're on the
-   > free Claude tier, `setup-token` itself will refuse — Anthropic requires a
-   > subscription to create this login. That's a limit of the account, not a
-   > charge from Claude Vitals, which is free.
+   > free Claude tier, signing in this way won't give Claude Vitals anything to
+   > read — Anthropic requires a subscription. That's a limit of the account,
+   > not a charge from Claude Vitals, which is free.
 
 4. **Double-click `setup.bat`** — this one *is* inside the unzipped folder. No
    terminal needed. It creates a private Python environment, installs the
@@ -246,7 +260,7 @@ Three things, and nothing else:
    there. **It copies the file to `.credentials.json.bak` first** and writes the
    replacement atomically, so an interrupted renewal can't leave you with a
    truncated file. Worst realistic case: the renewal fails and you sign in again
-   with `claude setup-token`.
+   with `claude auth login`.
 2. **Shortcuts** in your Start menu, on your Desktop, and — only if you ask for
    it — in your Startup folder. All plain `.lnk` files you can delete.
 3. **If you install the optional status line**, two entries under `~/.claude`

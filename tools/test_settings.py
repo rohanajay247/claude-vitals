@@ -120,12 +120,16 @@ try:
     # bouncing. Every mention must name whose plan it is, and say this is free.
     check("missing-login help states the app itself is free",
           "Claude Vitals — this app is free" in missing or "this app is free" in missing)
-    check("missing-login help gives the setup-token command", "setup-token" in missing)
+    # `auth login` writes the credentials file. `setup-token` does NOT -- it
+    # prints a long-lived token for use as an env var, so people who ran it
+    # were left with the "can't find your login" dialog and no idea why.
+    check("missing-login help gives the auth login command", "auth login" in missing)
+    check("missing-login help warns against setup-token", "setup-token" in missing)
     # Anyone who only uses the desktop app has no `claude` on PATH, so the bare
     # command on its own would be a dead end for exactly the people who need it.
     check("missing-login help covers 'claude not recognised'",
           "not recognised" in missing and "claude-code" in missing)
-    check("expired help gives the setup-token command", "setup-token" in expired)
+    check("expired help gives the auth login command", "auth login" in expired)
     check("expired help covers 'claude not recognised'",
           "not recognised" in expired and "claude-code" in expired)
 

@@ -25,6 +25,10 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 
+# Generated at setup time by install_shortcuts.py and deleted on uninstall,
+# so tracking it just makes git status flap.
+docs/claude-vitals.ico
+
 # Personal reference documentation — kept locally, not published.
 # docs/build_doc.js regenerates it; the mark is only used on its title page.
 *.docx

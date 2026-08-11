@@ -101,13 +101,29 @@ because one refresh was refused.
 2. **Download this repository** — green *Code* button → *Download ZIP* → unzip
    it somewhere permanent (not your Downloads folder).
 
-3. **Sign in to Claude Code**, if you never have. Open a terminal and run:
+3. **Sign in once**, so Claude Vitals has a login to read. You only do this once.
 
-   ```
+   Open **PowerShell** and run:
+
+   ```powershell
    claude setup-token
    ```
 
-   This is what creates the login Claude Vitals reads. You only do it once.
+   **If that says `claude` is not recognised** — which it will if you only use
+   the Claude desktop app and have never installed Claude Code — the desktop app
+   already ships a copy. This finds it whatever version you have:
+
+   ```powershell
+   & (Get-ChildItem "$env:APPDATA\Claude\claude-code\*\claude.exe" | Sort-Object FullName -Descending | Select-Object -First 1).FullName setup-token
+   ```
+
+   Follow the browser sign-in it opens. When it finishes, a file appears at
+   `%USERPROFILE%\.claude\.credentials.json` — that's what Claude Vitals reads.
+
+   > You do **not** need to use Claude Code afterwards. This step exists purely
+   > because that's where Claude stores a login on your machine. If you're on the
+   > free plan, `setup-token` will refuse — it requires a subscription, and so
+   > does Claude Vitals.
 
 4. **Double-click `setup.bat`.** It creates a private Python environment,
    installs the dependencies, and adds Desktop and Start-menu shortcuts. It
@@ -268,8 +284,9 @@ I'd rather set expectations properly than claim this is bulletproof:
 
 | Symptom | What's happening |
 |---|---|
-| **A dialog says it can't find your Claude login** | You've never run `claude setup-token`, or you're on the free plan (not supported). |
-| **A dialog says your login expired** | Run `claude setup-token` again. The desktop app signs in separately and doesn't refresh this file. |
+| **A dialog says it can't find your Claude login** | You haven't done step 3 of [Installation](#installation), or you're on the free plan (not supported). |
+| **`claude` is not recognised** | Normal if you only use the desktop app — use the longer command in step 3, which finds the copy the app ships. |
+| **A dialog says your login expired** | Repeat step 3. The desktop app signs in separately and doesn't refresh this file. |
 | **Tray shows a grey dash** | It can't reach the endpoint. Try *Refresh now*; if it persists, the endpoint may have changed. |
 | **The card never appears** | Check the tray icon exists, then left-click it. |
 | **It vanished behind a video** | It's unlocked. Left-click the tray icon, or click the padlock. |

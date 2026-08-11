@@ -40,26 +40,33 @@ def _parse_amount(text):
 SETUP_HELP = {
     "missing": (
         "Claude Vitals can't find your Claude login",
-        "It reads your usage using the login that Claude Code stores at\n"
+        "It reads your usage using the login stored at\n"
         "%USERPROFILE%\\.claude\\.credentials.json — and that file isn't there.\n\n"
-        "Two reasons this usually happens:\n\n"
-        "1.  You've never signed in to Claude Code. Open a terminal and run:\n"
-        "        claude setup-token\n"
-        "     then start Claude Vitals again.\n\n"
-        "2.  You're on the free Claude plan. Claude Code needs a paid plan\n"
-        "     (Pro, Max, Team or API credits), so there's no login for\n"
-        "     Claude Vitals to read. Unfortunately it can't work on the free\n"
-        "     plan — sorry!"
+        "If you're on a paid plan, sign in once. Open PowerShell and run:\n\n"
+        "        claude setup-token\n\n"
+        "If that says 'claude' is not recognised — which it will if you only\n"
+        "use the Claude desktop app — the app ships its own copy. Run this\n"
+        "instead (it finds whichever version you have):\n\n"
+        "        & (Get-ChildItem \"$env:APPDATA\\Claude\\claude-code\\*\\claude.exe\"\n"
+        "          | Sort-Object FullName -Descending\n"
+        "          | Select-Object -First 1).FullName setup-token\n\n"
+        "Then start Claude Vitals again. You don't have to use Claude Code\n"
+        "afterwards — that's just where the login gets stored.\n\n"
+        "On the free plan this won't work: signing in this way needs a\n"
+        "subscription, and so does Claude Vitals. Sorry!"
     ),
     "expired": (
         "Your Claude login has expired",
         "Claude Vitals found your login but Anthropic rejected it, and renewing\n"
         "it automatically didn't work either.\n\n"
-        "This happens if you haven't used Claude Code in a terminal for a few\n"
-        "weeks. The Claude desktop app signs in separately and doesn't refresh\n"
-        "this file.\n\n"
-        "To fix it, open a terminal and run:\n"
+        "This happens if the login hasn't been renewed for a few weeks. The\n"
+        "Claude desktop app signs in separately and doesn't refresh this file.\n\n"
+        "To fix it, open PowerShell and run:\n\n"
         "        claude setup-token\n\n"
+        "If 'claude' is not recognised, use the copy the desktop app ships:\n\n"
+        "        & (Get-ChildItem \"$env:APPDATA\\Claude\\claude-code\\*\\claude.exe\"\n"
+        "          | Sort-Object FullName -Descending\n"
+        "          | Select-Object -First 1).FullName setup-token\n\n"
         "Claude Vitals will pick up the new login by itself — no restart needed."
     ),
 }

@@ -112,10 +112,17 @@ try:
     build_and_close(lambda: dialogs.show_setup_help(root, "missing"), "help")
     check("setup-help dialog builds", built["help"])
 
-    check("free-plan wording present",
-          "free Claude plan" in dialogs.SETUP_HELP["missing"][1])
-    check("expired wording mentions setup-token",
-          "setup-token" in dialogs.SETUP_HELP["expired"][1])
+    missing = dialogs.SETUP_HELP["missing"][1]
+    expired = dialogs.SETUP_HELP["expired"][1]
+    check("missing-login help says the free plan can't work", "free plan" in missing)
+    check("missing-login help gives the setup-token command", "setup-token" in missing)
+    # Anyone who only uses the desktop app has no `claude` on PATH, so the bare
+    # command on its own would be a dead end for exactly the people who need it.
+    check("missing-login help covers 'claude not recognised'",
+          "not recognised" in missing and "claude-code" in missing)
+    check("expired help gives the setup-token command", "setup-token" in expired)
+    check("expired help covers 'claude not recognised'",
+          "not recognised" in expired and "claude-code" in expired)
 
     root.destroy()
 
